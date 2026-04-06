@@ -105,7 +105,12 @@ function configure_portage() {
 
 	if [[ $ENABLE_BINPKG == "true" ]]; then
 		echo 'FEATURES="getbinpkg binpkg-request-signature"' >> /etc/portage/make.conf
-		getuto
+		einfo "Running getuto to configure Portage OpenPGP trust"
+		if ! timeout 120 getuto; then
+			ewarn "getuto timed out or failed — falling back to binpkg-ignore-signature"
+			sed -i 's/binpkg-request-signature/binpkg-ignore-signature/' /etc/portage/make.conf \
+				|| die "Could not fix binpkg signature setting in make.conf"
+		fi
 		chmod 644 /etc/portage/gnupg/pubring.kbx
 	fi
 
