@@ -4,6 +4,10 @@ set -uo pipefail
 [[ $EXECUTED_IN_CHROOT != "true" ]] \
 	&& { echo "This script must not be executed directly!" >&2; exit 1; }
 
+# Remove problematic profile.d scripts that use undefined variables with set -u
+# debuginfod.sh references DEBUGINFOD_URLS which causes 'unbound variable' errors
+rm -f /etc/profile.d/debuginfod.sh
+
 # Source the systems profile
 source /etc/profile
 
